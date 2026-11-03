@@ -1,0 +1,9 @@
+# Test suites are naturally long, with long assertions and short names like `xs` for pixel
+# coordinates. These limits exist to keep production code simple.
+disabled_rules:
+  - type_body_length
+  - file_length
+line_length:
+  warning: 160
+identifier_name:
+  excluded: [x, y, id, dx, dy, xs, ys, lhs, rhs]

@@ -1,0 +1,38 @@
+name: ContributionChartExample
+options:
+  minimumXcodeGenVersion: 2.38.0
+packages:
+  ContributionChart:
+    path: ..
+targets:
+  ContributionChartExample:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: .
+        excludes:
+          - project.yml
+          - ContributionChartExampleUITests.swift
+          - README.md
+    dependencies:
+      - package: ContributionChart
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.ContributionChartExample
+        SWIFT_VERSION: "6.0"
+        GENERATE_INFOPLIST_FILE: YES
+        TARGETED_DEVICE_FAMILY: "1,2"
+  ContributionChartExampleUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: ContributionChartExampleUITests.swift
+    dependencies:
+      - target: ContributionChartExample
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.ContributionChartExampleUITests
+        SWIFT_VERSION: "6.0"
+        GENERATE_INFOPLIST_FILE: YES
