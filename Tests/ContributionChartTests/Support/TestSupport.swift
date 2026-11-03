@@ -46,7 +46,14 @@ enum Fixtures {
     }
 
     static func dense(_ count: Int) -> [ChartDataPoint] {
-        points((0..<count).map { sin(Double($0) * 0.7) * 10 + cos(Double($0) * 0.13) * 6 })
+        // Separate steps, because older compilers time out type-checking this as one expression.
+        let values: [Double] = (0..<count).map { index in
+            let position = Double(index)
+            let fast: Double = sin(position * 0.7) * 10
+            let slow: Double = cos(position * 0.13) * 6
+            return fast + slow
+        }
+        return points(values)
     }
 
     /// The values read from `Reference/chart.jpeg`.
@@ -60,7 +67,7 @@ enum Fixtures {
     /// example app, so its `referenceScreenshot` values are repeated here.
     static func referenceConfiguration(dark: Bool = false) -> ChartConfiguration {
         func color(_ hex: UInt32) -> Color {
-            Color(.sRGB, red: Double((hex >> 16) & 0xFF) / 255, green: Double((hex >> 8) & 0xFF) / 255, blue: Double(hex & 0xFF) / 255)
+            ChartPalette.Swatch(hex: hex).color
         }
         var configuration = ChartConfiguration()
         configuration.valueFormatter = .number(fractionDigits: 0...1, locale: Locale(identifier: "en_US"))
