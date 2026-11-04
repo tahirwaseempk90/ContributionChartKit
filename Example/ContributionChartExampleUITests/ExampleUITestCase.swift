@@ -8,8 +8,9 @@ import XCTest
 class ExampleUITestCase: XCTestCase {
     let timeout: TimeInterval = 15
 
+    // Doesn't call `super`, which does nothing, because Swift 6.1 and earlier reject sending
+    // `self` to it from the main actor.
     override func setUp() async throws {
-        try await super.setUp()
         continueAfterFailure = false
     }
 

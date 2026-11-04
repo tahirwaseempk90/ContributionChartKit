@@ -50,10 +50,22 @@ final class ContributionChartRenderingTests: XCTestCase {
         return configuration
     }
 
+    /// An explicit colour for tests that locate the baseline by its dark pixels. On watchOS 10 and
+    /// earlier, `.primary` stays white whatever the environment's colour scheme says.
+    private var blackBaseline: ChartConfiguration {
+        var configuration = labelsOff
+        configuration.style.baseline.color = .black
+        return configuration
+    }
+
+    /// Text in `.primary` and `.secondary` shows on blue whether they resolve to white, black,
+    /// or grey. On watchOS 9, `.secondary` is about the same as `Color.gray`.
+    private let onBlue = RenderEnvironment(background: .blue)
+
     // MARK: - The core promise
 
     func testPositiveMarksAreAboveAndNegativeMarksBelowTheBaseline() throws {
-        let buffer = try pixels(ContributionChart(points: Fixtures.contributors, configuration: labelsOff))
+        let buffer = try pixels(ContributionChart(points: Fixtures.contributors, configuration: blackBaseline))
         let baseline = baselineRow(in: buffer)
         let green = buffer.positions(where: isGreen)
         let red = buffer.positions(where: isRed)
@@ -64,7 +76,7 @@ final class ContributionChartRenderingTests: XCTestCase {
     }
 
     func testBaselineSpansTheFullWidth() throws {
-        let buffer = try pixels(ContributionChart(points: Fixtures.contributors, configuration: labelsOff))
+        let buffer = try pixels(ContributionChart(points: Fixtures.contributors, configuration: blackBaseline))
         let baseline = baselineRow(in: buffer)
         XCTAssertTrue(isInk(buffer.pixel(x: 0, y: baseline)))
         XCTAssertTrue(isInk(buffer.pixel(x: buffer.width - 1, y: baseline)))
@@ -195,8 +207,11 @@ final class ContributionChartRenderingTests: XCTestCase {
     // MARK: - Empty state
 
     func testEmptyDataShowsTheEmptyState() throws {
-        let empty = try pixels(ContributionChart(points: []))
-        let custom = try pixels(ContributionChart(points: []) { Text("Custom").font(.largeTitle) })
+        let empty = try pixels(ContributionChart(points: []), environment: onBlue)
+        let custom = try pixels(
+            ContributionChart(points: []) { Text("Custom").font(.largeTitle) },
+            environment: onBlue
+        )
         XCTAssertTrue(empty.positions(where: isGreen).isEmpty)
         XCTAssertGreaterThan(empty.differingFraction(from: custom, channelTolerance: 32), 0.001)
     }
@@ -208,14 +223,17 @@ final class ContributionChartRenderingTests: XCTestCase {
     }
 
     func testEmptyStateMessageCanBeChanged() throws {
-        let standard = try pixels(ContributionChart(points: []))
-        let custom = try pixels(ContributionChart(points: []) { ChartEmptyState(message: "Nothing here yet") })
+        let standard = try pixels(ContributionChart(points: []), environment: onBlue)
+        let custom = try pixels(
+            ContributionChart(points: []) { ChartEmptyState(message: "Nothing here yet") },
+            environment: onBlue
+        )
         XCTAssertGreaterThan(standard.differingFraction(from: custom, channelTolerance: 32), 0)
     }
 
     func testEmptyStateShowsTheTitle() throws {
-        let titled = try pixels(ContributionChart(points: [], title: "Title"))
-        let plain = try pixels(ContributionChart(points: []))
+        let titled = try pixels(ContributionChart(points: [], title: "Title"), environment: onBlue)
+        let plain = try pixels(ContributionChart(points: []), environment: onBlue)
         XCTAssertGreaterThan(titled.differingFraction(from: plain, channelTolerance: 32), 0)
     }
 
@@ -420,7 +438,7 @@ final class ContributionChartRenderingTests: XCTestCase {
 
     func testRightToLeftKeepsMarkersAboveTheBaseline() throws {
         let buffer = try pixels(
-            ContributionChart(points: Fixtures.contributors, configuration: labelsOff),
+            ContributionChart(points: Fixtures.contributors, configuration: blackBaseline),
             environment: RenderEnvironment(layoutDirection: .rightToLeft)
         )
         let baseline = baselineRow(in: buffer)
@@ -501,7 +519,10 @@ final class ContributionChartRenderingTests: XCTestCase {
         configuration.style.baseline = ChartLineStyle(color: .black, thickness: .infinity, dash: [1])
         configuration.valueAxis = ChartValueAxis(desiredTickCount: -4)
         let chart = ContributionChart(points: hostile, configuration: configuration)
-        for size in [CGSize.zero, CGSize(width: 1, height: 1), CGSize(width: 5000, height: 2), size] {
+        // Past the GPU's texture limit, `ImageRenderer` crashes on iOS 16, tvOS 16, and watchOS 10
+        // and earlier, whatever the view. Simulators on virtual GPUs allow as little as 4096 pixels.
+        let wideWithinTheLimit = CGSize(width: 2000, height: 2)
+        for size in [CGSize.zero, CGSize(width: 1, height: 1), wideWithinTheLimit, size] {
             _ = ChartRendering.pixels(of: chart, size: size)
         }
     }
@@ -522,6 +543,7 @@ final class ContributionChartRenderingTests: XCTestCase {
         func header(_ alignment: TextAlignment) throws -> PixelBuffer {
             var configuration = labelsOff
             configuration.style.header.alignment = alignment
+            configuration.style.header.color = .black
             return try pixels(ContributionChart(points: Fixtures.contributors, title: "T", configuration: configuration))
         }
         func inkX(_ buffer: PixelBuffer) -> Int {
