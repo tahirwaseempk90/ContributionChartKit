@@ -266,10 +266,10 @@ See the [integration guide](Documentation/Integration.md) for versioning and how
 | **watchOS** | 9 |
 | **visionOS** | 1 |
 | **Swift tools** | 6.0 |
-| **Xcode** | 16, the first with Swift 6 tools |
+| **Xcode** | 16 |
 | **Dependencies** | None |
 
-These are what the package declares. It has actually been built and tested with Xcode 26.6 (Swift 6.3) and Xcode 27.2 (Swift 6.4), not with anything older. See [Platform Support](#platform-support) for what has been validated.
+It has been built and tested with Xcode 16.2 (Swift 6.0), 16.4 (Swift 6.1), 26.6 (Swift 6.3), and 27.2 (Swift 6.4). See [Platform Support](#platform-support) for the OS versions.
 
 ---
 
@@ -764,7 +764,7 @@ The package has 429 tests, and the example app has 59 UI tests.
 |---|---|---|
 | 100% (1944/1944) | 100% (324/324) | 99.86% (698/699) |
 
-Coverage shows which lines ran, not that they're right. [CI](.github/workflows/ci.yml) runs on pushes to `main` and on pull requests. It builds with warnings as errors, runs the tests, and fails if line coverage falls below 99%. See the [testing guide](Documentation/Testing.md) for the details, including how to record snapshots.
+Coverage shows which lines ran, not that they're right. [CI](.github/workflows/ci.yml) runs on pushes to `main` and on pull requests. It builds with warnings as errors, runs the tests, and fails if line coverage falls below 99%. A separate [compatibility workflow](.github/workflows/compatibility.yml) runs them on older systems, back to Swift 6.0 and iOS 16.4. See the [testing guide](Documentation/Testing.md) for the details, including how to record snapshots.
 
 ---
 
@@ -803,18 +803,18 @@ The element order and wording are tested against the real accessibility tree. Th
 
 ## Platform Support
 
-| Platform | Declared minimum | Compiled | Tests run | OS version tested |
+| Platform | Declared minimum | Oldest version tested | Package tests run on | UI tests run on |
 |---|---|---|---|---|
-| **iOS** | 16 | ✅ | ✅ Package and UI tests on iPhone simulators | 26.5, 27.2 |
-| **iPadOS** | 16 | ✅ | ✅ UI tests on iPad simulators | 27.2 |
-| **macOS** | 13 | ✅ | ✅ Package and UI tests | 26, 27.2 |
-| **Mac Catalyst** | 16 | ✅ | ✅ Package tests | 27.2 |
-| **visionOS** | 1 | ✅ | ✅ Package tests, and the example app launched | 27.2 |
-| **tvOS** | 16 | ✅ | ✅ Package tests | 27.2 |
-| **watchOS** | 9 | ✅ | ✅ Package tests | 27.2 |
+| **iOS** | 16 | 16.4 | 16.4, 17.0, 18.6, 26.5, 27.2 | 17.0, 18.6, 26.5, 27.2 |
+| **iPadOS** | 16 | 27.2 | Same build as iOS | 27.2 |
+| **macOS** | 13 | 14 | 14, 15, 26, 27.2 | 27.2 |
+| **Mac Catalyst** | 16 | macOS 14 | macOS 14, 27.2 | None |
+| **visionOS** | 1 | 1.0 | 1.0, 27.2 | None |
+| **tvOS** | 16 | 16.4 | 16.4, 17.0, 27.2 | None |
+| **watchOS** | 9 | 9.4 | 9.4, 10.0, 27.2 | None |
 
 > [!IMPORTANT]
-> The minimum versions are confirmed by the compiler but haven't been run, and nothing has been run on physical devices. See [Platform Support](Documentation/PlatformSupport.md) for the details and known limitations.
+> Testing has been on simulators and Macs, not physical devices. macOS 13 is the one declared minimum that hasn't been run, because GitHub's runners no longer offer it. Snapshot tests only compare images on OS 27. See [Platform Support](Documentation/PlatformSupport.md) for the details and known limitations.
 
 ---
 

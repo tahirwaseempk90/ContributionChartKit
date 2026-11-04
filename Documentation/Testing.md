@@ -190,3 +190,17 @@ iOS 26.5.
 References for snapshot tests only exist for OS 27, so **these tests skip on CI** until GitHub's runners reach
 OS 27. Until then, CI doesn't catch visual changes, and snapshots have to be run locally. All other tests run
 there.
+
+A second workflow, [`compatibility.yml`](../.github/workflows/compatibility.yml), runs on the same events. It tests
+the oldest toolchain and systems that GitHub's runners offer, because SwiftUI's behaviour can differ between OS versions
+in ways the compiler can't see:
+
+| Job | What it does |
+|---|---|
+| `macos` | Builds with warnings as errors and runs the tests, with Swift 6.0 on macOS 14 and Swift 6.1 on macOS 15 |
+| `package-tests` | Runs the package's tests on iOS 17.0 and 18.6, Mac Catalyst, tvOS 17.0, watchOS 10.0, and visionOS 1.0 |
+| `declared-minimums` | Downloads the simulators for iOS 16.4, tvOS 16.4, and watchOS 9.4, and runs the package's tests on them |
+| `example` | Builds the example app, and runs its UI tests on iOS 17.0 and 18.6 |
+
+It will need updating when GitHub retires a runner image. A failure there doesn't affect the CI badge, which only
+follows `ci.yml`.

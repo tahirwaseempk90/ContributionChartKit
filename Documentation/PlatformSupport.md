@@ -33,17 +33,33 @@ Also tested on GitHub Actions with Xcode 26.6 (17F113) and Swift 6.3.3 on macOS 
 | macOS | Yes | 390 passed, 39 skipped | None | GitHub's arm64 runner |
 | iOS device, Mac Catalyst, tvOS, watchOS, visionOS | Yes | None | None | Compiled only |
 
+Older systems are tested on GitHub Actions by the
+[compatibility workflow](../.github/workflows/compatibility.yml):
+
+| Toolchain | Platform | Package tests | UI tests |
+|---|---|---|---|
+| Xcode 16.2, Swift 6.0.3 | macOS 14 | 390 passed, 39 skipped | None |
+| Xcode 16.2 | Mac Catalyst on macOS 14 | 390 passed, 39 skipped | None |
+| Xcode 16.2 | iOS 16.4 | 390 passed, 39 skipped | None, as they need iOS 17 |
+| Xcode 16.2 | iOS 17.0.1 | 390 passed, 39 skipped | 59 passed |
+| Xcode 16.2 | tvOS 16.4 and 17.0 | 390 passed, 39 skipped on each | None |
+| Xcode 16.2 | watchOS 9.4 and 10.0 | 390 passed, 39 skipped on each | None |
+| Xcode 16.2 | visionOS 1.0 | 390 passed, 39 skipped | None |
+| Xcode 16.4, Swift 6.1.2 | macOS 15 | 390 passed, 39 skipped | None |
+| Xcode 16.4 | iOS 18.6 | 390 passed, 39 skipped | 59 passed |
+
 "Skipped" tests are the snapshot tests, which only have references for macOS 27 and iOS 27. All the other package
 tests ran on those platforms, including the rendering tests.
 
 **Not validated:**
 
-- **Older OS versions.** The oldest version tested is 26, so the package has never actually run on the declared
-  minimums. The compiler confirms it uses only APIs available there, but SwiftUI's behaviour can differ between
-  OS versions. Before relying on an older OS, run the tests on it.
+- **macOS 13.** This is the one declared minimum that hasn't been run, because GitHub's runners no longer offer it.
+  The oldest macOS tested is 14. The compiler confirms the package uses only APIs available on macOS 13, but SwiftUI's
+  behaviour can differ between versions.
+- **Earlier point releases.** The oldest versions run are iOS 16.4, tvOS 16.4, and watchOS 9.4, not 16.0 and 9.0.
+- **Visual comparison on older systems.** Snapshot tests only compare images on OS 27. Elsewhere, the rendering tests
+  check what was drawn, but nobody has looked at the results on older systems.
 - **Physical devices.** Everything ran on simulators and Macs.
-- **Older compilers.** The oldest tested is Swift 6.3.3. The package declares `swift-tools-version: 6.0`, and
-  nothing it uses is known to need more, but that hasn't been tested.
 
 ## Devices
 
@@ -114,4 +130,6 @@ English locale.
 - **Labels can overlap gridlines.** When a value axis is shown, a gridline can pass behind a label. They stay
   readable, as gridlines are faint by default, but the chart doesn't move labels to avoid them.
 - **Very wide frames.** A chart's chosen width stops at 16,384 pixels, the usual GPU texture limit. A parent can still
-  offer more, and whether that draws depends on the device's GPU.
+  offer more, and whether that draws depends on the device's GPU. On iOS 16, tvOS 16, and watchOS 10 and earlier,
+  SwiftUI's `ImageRenderer` crashes when asked for an image wider than the limit, whatever the view, so keep exported
+  images within it. Simulators on virtual GPUs allow as little as 4,096 pixels.

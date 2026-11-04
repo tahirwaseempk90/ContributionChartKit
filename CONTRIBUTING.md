@@ -10,7 +10,7 @@ Thanks for your interest. Bug reports, fixes, documentation, and ideas are all w
 
 ## Set up
 
-You need Xcode 26 or later. There are no dependencies to install.
+You need Xcode 16 or later. There are no dependencies to install.
 
 [Fork the repository](https://github.com/tahirwaseempk90/ContributionChartKit/fork), then:
 
