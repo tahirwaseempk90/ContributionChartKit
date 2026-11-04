@@ -1,0 +1,16 @@
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+# Xcode
+DerivedData/
+xcuserdata/
+*.xcuserstate
+*.xcresult
+
+# macOS
+.DS_Store
+
+# Generated reports
+coverage/

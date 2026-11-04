@@ -1,0 +1,40 @@
+included:
+  - Sources
+  - Tests
+  - Example/ContributionChartExample
+  - Example/ContributionChartExampleUITests
+
+opt_in_rules:
+  - force_unwrapping
+  - explicit_init
+  - first_where
+  - sorted_first_last
+  - closure_spacing
+  - empty_count
+  - fatal_error_message
+
+disabled_rules:
+  - todo # Reported as an error below instead; no TODOs may ship.
+
+custom_rules:
+  no_todo_markers:
+    name: "No unfinished work"
+    regex: '(TODO|FIXME)\s*:'
+    message: "Do not ship unfinished work."
+    severity: error
+
+identifier_name:
+  excluded: [x, y, id, dx, dy, lhs, rhs]
+cyclomatic_complexity:
+  ignores_case_statements: true
+line_length:
+  warning: 120
+  ignores_comments: false
+type_body_length:
+  warning: 300
+file_length:
+  warning: 500
+function_body_length:
+  warning: 45
+large_tuple:
+  warning: 3
